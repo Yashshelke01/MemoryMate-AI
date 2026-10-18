@@ -1,0 +1,47 @@
+# Secrets and environment variables
+
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Local databases and database files
+
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db-*
+*.sqlite-*
+
+# Python virtual environments and caches
+
+**/.venv/
+**/venv/
+**/**pycache**/
+**/.pytest_cache/
+*.py[cod]
+
+# Python build artifacts
+
+build/
+dist/
+*.egg-info/
+
+# IDE and operating system files
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+
+*.log
+
+# Temporary files
+
+**/work-temp/
+**/tmp/

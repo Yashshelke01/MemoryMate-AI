@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="70 80 300 245" fill="none" role="img" aria-labelledby="favicon-title">
+  <title id="favicon-title">MemoryMate AI</title>
+  <path d="M95 295V105H138L195 190V245L140 165V295Z" fill="#D98252"/>
+  <path d="M195 188L207 205L195 245Z" fill="#74808A"/>
+  <path d="M195 175L215 115L278 285M210 210L278 285M285 110L325 195L278 285" stroke="#74808A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M215 115L285 110L325 195" stroke="#D98252" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#74808A"><circle cx="215" cy="115" r="17"/><circle cx="210" cy="210" r="17"/><circle cx="278" cy="285" r="17"/></g>
+  <g fill="#E7A47E"><circle cx="285" cy="110" r="17"/><circle cx="325" cy="195" r="17"/></g>
+</svg>

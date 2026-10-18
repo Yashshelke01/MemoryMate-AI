@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="245" viewBox="70 80 300 245" fill="none" role="img" aria-labelledby="symbol-title">
+  <title id="symbol-title">MemoryMate AI M and knowledge graph symbol</title>
+  <g stroke="#D98252" stroke-width="11" stroke-linecap="round">
+    <line x1="215" y1="115" x2="285" y2="110"/>
+    <line x1="215" y1="115" x2="325" y2="195"/>
+    <line x1="285" y1="110" x2="210" y2="210"/>
+    <line x1="285" y1="110" x2="325" y2="195"/>
+    <line x1="285" y1="110" x2="278" y2="285"/>
+    <line x1="210" y1="210" x2="325" y2="195"/>
+    <line x1="325" y1="195" x2="278" y2="285"/>
+  </g>
+  <path d="M248 250V295H278V265Z" fill="#74808A"/>
+  <g stroke="#74808A" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="195" y1="175" x2="215" y2="115"/>
+    <line x1="195" y1="230" x2="210" y2="210"/>
+    <line x1="215" y1="115" x2="278" y2="285"/>
+    <line x1="210" y1="210" x2="278" y2="285"/>
+  </g>
+  <path d="M95 295V105H138L195 190V245L140 165V295Z" fill="#D98252"/>
+  <path d="M195 188L207 205L195 245Z" fill="#74808A"/>
+  <g fill="#74808A"><circle cx="215" cy="115" r="18"/><circle cx="210" cy="210" r="18"/><circle cx="278" cy="285" r="18"/></g>
+  <g fill="#E7A47E"><circle cx="285" cy="110" r="18"/><circle cx="325" cy="195" r="18"/></g>
+</svg>

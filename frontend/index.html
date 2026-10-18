@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemoryMate AI — Persistent Graph Memory Workspace</title>
+  <meta name="theme-color" content="#17191B">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a href="#chat-input" class="skip-link">Skip to message input</a>
+
+  <section class="auth-screen" id="auth-screen" aria-labelledby="auth-heading" hidden>
+    <form class="auth-card" id="auth-form" novalidate>
+      <img class="auth-brand-symbol" src="assets/memorymate-symbol.svg" alt="" aria-hidden="true" width="300" height="245">
+      <h1 id="auth-heading">Welcome to MemoryMate AI</h1>
+      <p class="auth-description" id="auth-description">Sign in to your private memory workspace.</p>
+      <div class="auth-signup-fields" id="auth-signup-fields" hidden>
+        <div class="form-field">
+          <label for="auth-full-name" class="field-label">Full name</label>
+          <input type="text" id="auth-full-name" class="field-input" autocomplete="name" minlength="2" maxlength="100" required>
+        </div>
+        <div class="form-field">
+          <label for="auth-mobile-number" class="field-label">Mobile number</label>
+          <div class="phone-input-row">
+            <select id="auth-country-code" class="field-select country-code-select" aria-label="Country and calling code" required>
+              <option value="+91" selected>India +91 (IND)</option>
+              <option value="+1">United States +1 (USA)</option>
+              <option value="+1">Canada +1 (CAN)</option>
+              <option value="+44">United Kingdom +44 (GBR)</option>
+              <option value="+61">Australia +61 (AUS)</option>
+              <option value="+64">New Zealand +64 (NZL)</option>
+              <option value="+65">Singapore +65 (SGP)</option>
+              <option value="+971">United Arab Emirates +971 (ARE)</option>
+              <option value="+966">Saudi Arabia +966 (SAU)</option>
+              <option value="+880">Bangladesh +880 (BGD)</option>
+              <option value="+92">Pakistan +92 (PAK)</option>
+              <option value="+94">Sri Lanka +94 (LKA)</option>
+              <option value="+977">Nepal +977 (NPL)</option>
+              <option value="+81">Japan +81 (JPN)</option>
+              <option value="+82">South Korea +82 (KOR)</option>
+              <option value="+86">China +86 (CHN)</option>
+              <option value="+49">Germany +49 (DEU)</option>
+              <option value="+33">France +33 (FRA)</option>
+              <option value="+39">Italy +39 (ITA)</option>
+              <option value="+34">Spain +34 (ESP)</option>
+              <option value="+31">Netherlands +31 (NLD)</option>
+              <option value="+353">Ireland +353 (IRL)</option>
+              <option value="+27">South Africa +27 (ZAF)</option>
+              <option value="+234">Nigeria +234 (NGA)</option>
+              <option value="+254">Kenya +254 (KEN)</option>
+              <option value="+55">Brazil +55 (BRA)</option>
+              <option value="+52">Mexico +52 (MEX)</option>
+              <option value="+62">Indonesia +62 (IDN)</option>
+              <option value="+60">Malaysia +60 (MYS)</option>
+              <option value="+63">Philippines +63 (PHL)</option>
+            </select>
+            <input type="tel" id="auth-mobile-number" class="field-input phone-number-input" inputmode="numeric" autocomplete="tel-national" minlength="5" maxlength="14" pattern="[0-9]{5,14}" placeholder="Mobile number" required>
+          </div>
+          <p class="field-hint">Choose your country code, then enter the number without the country code.</p>
+        </div>
+        <div class="form-field">
+          <label for="auth-age" class="field-label">Age</label>
+          <input type="number" id="auth-age" class="field-input" inputmode="numeric" min="13" max="120" step="1" required>
+          <p class="field-hint">Age must be between 13 and 120.</p>
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="auth-identifier" class="field-label" id="auth-identifier-label">Email</label>
+        <input type="email" id="auth-identifier" class="field-input" autocomplete="username" maxlength="254" required>
+      </div>
+      <div class="form-field">
+        <label for="auth-password" class="field-label">Password</label>
+        <input type="password" id="auth-password" class="field-input" autocomplete="current-password" minlength="10" maxlength="128" required>
+      </div>
+      <div class="form-error" id="auth-error" role="alert" hidden></div>
+      <button type="submit" class="btn btn-primary auth-submit" id="auth-submit">Sign in</button>
+      <button type="button" class="btn btn-ghost auth-mode-toggle" id="auth-mode-toggle">Create an account</button>
+    </form>
+  </section>
+
+  <div id="app-shell" hidden>
+
+  <!-- Top Application Header -->
+  <header class="app-header" role="banner">
+    <div class="header-brand">
+      <img class="brand-lockup" src="assets/memorymate-logo.svg" alt="MemoryMate AI — Personal Graph Memory" width="520" height="130">
+    </div>
+
+    <!-- Backend & Database Connection Status Bar -->
+    <div class="header-center">
+      <div class="connection-bar" id="connection-status-bar" role="status" aria-live="polite" aria-label="System connection status">
+        <span class="status-pill status-checking" id="health-overall-pill" title="Overall backend status">
+          <span class="status-dot" id="health-overall-dot"></span>
+          <span id="health-overall-text">Checking API…</span>
+        </span>
+        <span class="status-divider" aria-hidden="true"></span>
+        <span class="dep-badge" id="health-falkordb-badge" title="FalkorDB graph database status">
+          <span class="status-dot" id="health-falkordb-dot"></span>
+          <span>FalkorDB: <strong id="health-falkordb-value">…</strong></span>
+        </span>
+        <span class="dep-badge" id="health-llm-badge" title="LLM provider configuration status">
+          <span class="status-dot" id="health-llm-dot"></span>
+          <span>LLM: <strong id="health-llm-value">…</strong></span>
+        </span>
+        <button type="button" class="icon-btn status-refresh-btn" id="refresh-health-btn" title="Re-check backend and database health" aria-label="Re-check backend and database health">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Header Actions: Signed-in account and conversation controls -->
+    <div class="header-actions">
+      <button type="button" class="btn btn-ghost btn-sm reset-layout-icon-btn" id="reset-layout-btn" title="Restore the default panel sizes" aria-label="Reset panel layout">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"></path><path d="M3 3v5h5"></path>
+        </svg>
+      </button>
+      <div class="account-menu-wrapper">
+        <button type="button" class="account-avatar-btn" id="account-menu-btn" aria-expanded="false" aria-controls="account-menu-popover" aria-label="Open account menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"></circle>
+            <path d="M4 21a8 8 0 0 1 16 0"></path>
+          </svg>
+        </button>
+        <div class="account-menu-popover" id="account-menu-popover" role="dialog" aria-label="Account menu" hidden>
+          <div class="account-menu-profile">
+            <strong id="account-menu-name">Account</strong>
+            <span class="signed-in-user" id="signed-in-user"></span>
+            <small>Account ID: <code id="active-user-badge">—</code></small>
+          </div>
+          <div class="account-menu-actions">
+            <div class="identity-dropdown-wrapper">
+              <button type="button" class="btn btn-secondary btn-sm account-menu-action" id="connection-settings-btn" aria-expanded="false" aria-controls="connection-settings-popover">
+                Connection settings
+              </button>
+              <div class="popover-panel" id="connection-settings-popover" role="dialog" aria-label="API connection settings" hidden>
+                <div class="popover-header">
+                  <h2 class="popover-title">API Connection</h2>
+                  <button type="button" class="icon-btn" id="close-settings-popover-btn" aria-label="Close connection settings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                </div>
+                <form id="connection-settings-form" class="popover-form">
+                  <div class="form-field">
+                    <label for="setting-api-base" class="field-label">FastAPI Base URL</label>
+                    <input type="url" id="setting-api-base" class="field-input" placeholder="http://localhost:8000" required>
+                    <p class="field-hint">Backend endpoint serving <code>/health</code>, <code>/chat</code>, <code>/memories</code>, and <code>/graph</code>.</p>
+                  </div>
+                  <div class="form-error" id="settings-form-error" role="alert" hidden></div>
+                  <div class="popover-actions">
+                    <button type="button" class="btn btn-ghost btn-sm" id="reset-settings-btn">Reset Defaults</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Apply &amp; Reconnect</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm account-menu-action" id="logout-btn">Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile & Tablet Workspace Switcher -->
+  <nav class="mobile-workspace-nav" aria-label="Workspace sections">
+    <button type="button" class="mobile-nav-tab is-active" data-mobile-pane="chat" id="mobile-tab-chat" aria-selected="true">
+      <span>Chat</span>
+    </button>
+    <button type="button" class="mobile-nav-tab" data-mobile-pane="evidence" id="mobile-tab-evidence" aria-selected="false">
+      <span>Evidence</span>
+      <span class="tab-badge" id="mobile-evidence-count">0</span>
+    </button>
+    <button type="button" class="mobile-nav-tab" data-mobile-pane="memories" id="mobile-tab-memories" aria-selected="false">
+      <span>Saved Memories</span>
+      <span class="tab-badge" id="mobile-memories-count">0</span>
+    </button>
+    <button type="button" class="mobile-nav-tab" data-mobile-pane="graph" id="mobile-tab-graph" aria-selected="false">
+      <span>Graph</span>
+    </button>
+  </nav>
+
+  <!-- Main Workspace Grid -->
+  <main class="workspace-layout" id="workspace-layout">
+    <!-- LEFT COLUMN: Main Chat Interface -->
+    <section class="chat-pane is-mobile-active" id="pane-chat" aria-label="Conversation">
+      <!-- Chat Subheader -->
+      <div class="pane-header">
+        <div class="pane-header-left">
+          <h2 class="pane-title">Conversation</h2>
+          <span class="conv-badge" id="conversation-id-badge" title="Current backend conversation identifier">New session (no ID yet)</span>
+        </div>
+        <div class="pane-header-right">
+          <span class="persistence-note">Saved memories persist in FalkorDB across sessions</span>
+          <label class="sr-only" for="conversation-history-select">Conversation history</label>
+          <select class="field-select history-select" id="conversation-history-select" aria-label="Open a saved conversation">
+            <option value="">Conversation history</option>
+          </select>
+          <button type="button" class="btn btn-primary btn-sm" id="new-conversation-btn" title="Start a new conversation; saved memories remain available">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>New Conversation</span>
+          </button>
+          <span class="history-error" id="history-error" role="status" hidden></span>
+        </div>
+      </div>
+
+      <!-- Chat Error Banner -->
+      <div class="alert-banner alert-error" id="chat-error-banner" role="alert" hidden>
+        <div class="alert-content">
+          <div class="alert-title-row">
+            <strong class="alert-title" id="chat-error-title">Request failed</strong>
+            <span class="error-code-badge" id="chat-error-code"></span>
+          </div>
+          <p class="alert-message" id="chat-error-message"></p>
+          <p class="alert-meta" id="chat-error-meta" hidden></p>
+        </div>
+        <button type="button" class="icon-btn alert-dismiss-btn" id="dismiss-chat-error-btn" aria-label="Dismiss chat error">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <!-- Chat Message Stream -->
+      <div class="chat-stream" id="chat-messages" role="log" aria-live="polite" aria-relevant="additions">
+        <!-- Empty State (shown when conversation has no messages) -->
+        <div class="empty-state chat-empty-state" id="chat-empty-state">
+          <div class="empty-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
+          <h3 class="empty-title" id="chat-welcome-title">Start a memory-grounded conversation</h3>
+          <p class="empty-description">
+            Share durable facts about your goals, skills, projects, commitments, or preferences. MemoryMate AI extracts facts to FalkorDB and grounds future answers with verifiable memory evidence.
+          </p>
+          <div class="starter-prompts" aria-label="Example prompts">
+            <span class="starter-label">Try an example prompt:</span>
+            <div class="starter-grid">
+              <button type="button" class="starter-chip" data-prompt="I'm learning Python. I want to build an AI project by November. I can study one hour every day.">
+                <span class="chip-tag">Save facts</span>
+                <span class="chip-text">“I'm learning Python. I want to build an AI project by November. I can study one hour every day.”</span>
+              </button>
+              <button type="button" class="starter-chip" data-prompt="What should I focus on this week to reach my goal?">
+                <span class="chip-tag">Grounded query</span>
+                <span class="chip-text">“What should I focus on this week to reach my goal?”</span>
+              </button>
+              <button type="button" class="starter-chip" data-prompt="I now have two hours available each day.">
+                <span class="chip-tag">Update commitment</span>
+                <span class="chip-text">“I now have two hours available each day.”</span>
+              </button>
+              <button type="button" class="starter-chip" data-prompt="What is my favorite programming language?">
+                <span class="chip-tag">Check unknown fact</span>
+                <span class="chip-text">“What is my favorite programming language?”</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic messages container -->
+        <div class="messages-list" id="messages-list"></div>
+
+        <!-- Pending Request Loading Indicator -->
+        <div class="chat-loading" id="chat-loading" role="status" aria-live="polite" hidden>
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="loading-text-group">
+            <span class="loading-title">Processing message with backend…</span>
+            <span class="loading-subtitle">Extracting facts, updating FalkorDB, retrieving scoped memories, and generating a grounded answer.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Composer Form -->
+      <form class="chat-composer" id="chat-form" novalidate>
+        <div class="composer-input-wrap">
+          <label for="chat-input" class="sr-only">Message to MemoryMate AI</label>
+          <textarea
+            id="chat-input"
+            class="composer-textarea"
+            rows="2"
+            maxlength="4000"
+            placeholder="Share a goal, skill, preference, or ask a question… (Enter to send, Shift+Enter for new line)"
+            required
+          ></textarea>
+        </div>
+        <div class="composer-footer">
+          <div class="composer-hints">
+            <span class="kbd-hint"><kbd>Enter</kbd> to send</span>
+            <span class="kbd-separator" aria-hidden="true">·</span>
+            <span class="kbd-hint"><kbd>Shift</kbd> + <kbd>Enter</kbd> for newline</span>
+            <span class="kbd-separator" aria-hidden="true">·</span>
+            <span class="char-counter" id="chat-char-counter">0 / 4,000</span>
+          </div>
+          <div class="composer-actions">
+            <button type="submit" class="btn btn-primary" id="chat-send-btn" disabled>
+              <span id="chat-send-btn-text">Send Message</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <div class="layout-splitter layout-splitter-column" id="main-layout-splitter" role="separator" tabindex="0" aria-orientation="vertical" aria-label="Resize conversation and memory panels" aria-valuemin="32" aria-valuemax="72" aria-valuenow="56"></div>
+
+    <!-- RIGHT COLUMN: Grounding Evidence & Saved Memory Inspector -->
+    <aside class="inspector-column" aria-label="Memory evidence and saved memories">
+      <!-- Top Inspector Section: Memories Used For This Answer (Evidence Panel) -->
+      <section class="inspector-card evidence-section" id="pane-evidence" aria-labelledby="evidence-heading">
+        <div class="pane-header">
+          <div class="pane-header-left">
+            <h2 class="pane-title" id="evidence-heading">Memories used for this answer</h2>
+            <span class="count-pill" id="evidence-count-badge" title="Number of active database memories passed into the LLM context">0</span>
+          </div>
+          <div class="pane-header-right" id="evidence-turn-Meta">
+            <span class="turn-indicator" id="evidence-turn-label">No answer yet</span>
+          </div>
+        </div>
+
+        <!-- Confirmed Memory Operations Summary Bar -->
+        <div class="ops-summary-bar" id="evidence-ops-bar" hidden>
+          <span class="ops-label">Backend graph operations this turn:</span>
+          <div class="ops-badges">
+            <span class="op-pill" id="op-created-pill">Created: <strong id="op-created-count">0</strong></span>
+            <span class="op-pill" id="op-updated-pill">Updated: <strong id="op-updated-count">0</strong></span>
+            <span class="op-pill" id="op-superseded-pill">Superseded: <strong id="op-superseded-count">0</strong></span>
+          </div>
+        </div>
+
+        <div class="inspector-body evidence-body" id="evidence-body">
+          <!-- Initial State (before any chat response) -->
+          <div class="empty-state empty-state-compact" id="evidence-initial-empty">
+            <p class="empty-title">No answer selected yet</p>
+            <p class="empty-description">
+              Send a message in the chat to see the exact FalkorDB memory records retrieved and supplied to the LLM for that answer.
+            </p>
+          </div>
+
+          <!-- Zero-Evidence State (when memories_used is []) -->
+          <div class="empty-state empty-state-compact empty-state-notice" id="evidence-zero-empty" hidden>
+            <p class="empty-title">0 stored memories used for this answer</p>
+            <p class="empty-description">
+              The backend returned an empty <code>memories_used</code> list for this response. No active FalkorDB records matched or existed for this query.
+            </p>
+          </div>
+
+          <!-- Evidence Cards List -->
+          <div class="evidence-list" id="evidence-list" role="list" hidden></div>
+        </div>
+      </section>
+
+      <div class="layout-splitter layout-splitter-row" id="inspector-layout-splitter" role="separator" tabindex="0" aria-orientation="horizontal" aria-label="Resize evidence and saved memory panels" aria-valuemin="25" aria-valuemax="75" aria-valuenow="38"></div>
+
+      <!-- Bottom Inspector Section: Saved Memories & Graph View -->
+      <section class="inspector-card memories-section" id="pane-memories" aria-labelledby="memories-heading">
+        <div class="pane-header">
+          <div class="pane-header-left">
+            <div class="subview-tabs" role="tablist" aria-label="Memory views">
+              <button type="button" class="subview-tab is-active" role="tab" aria-selected="true" id="tab-btn-list" data-subview="list">
+                <span id="memories-heading">Saved Memories</span>
+                <span class="count-pill" id="saved-memories-total-badge">0</span>
+              </button>
+              <button type="button" class="subview-tab" role="tab" aria-selected="false" id="tab-btn-graph" data-subview="graph">
+                <span>Memory Graph</span>
+                <span class="count-pill" id="graph-nodes-count-badge">0</span>
+              </button>
+            </div>
+          </div>
+          <div class="pane-header-right">
+            <button type="button" class="btn btn-ghost btn-xs" id="refresh-memories-btn" title="Fetch latest active memories from FalkorDB">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SUBVIEW 1: Saved Memories List & Category Filters -->
+        <div class="subview-panel" id="subview-list" role="tabpanel" aria-labelledby="tab-btn-list">
+          <!-- Filter & Search Toolbar -->
+          <div class="memories-toolbar">
+            <div class="search-input-wrap">
+              <label for="memory-search-input" class="sr-only">Filter saved memories by subject or content</label>
+              <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="search" id="memory-search-input" class="search-input" placeholder="Filter by subject or content…">
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div class="category-pills" id="category-filter-bar" role="toolbar" aria-label="Filter memories by category">
+              <button type="button" class="cat-filter-btn is-active" data-category="all" aria-pressed="true">All</button>
+              <button type="button" class="cat-filter-btn" data-category="goal" aria-pressed="false">goal</button>
+              <button type="button" class="cat-filter-btn" data-category="skill" aria-pressed="false">skill</button>
+              <button type="button" class="cat-filter-btn" data-category="project" aria-pressed="false">project</button>
+              <button type="button" class="cat-filter-btn" data-category="task" aria-pressed="false">task</button>
+              <button type="button" class="cat-filter-btn" data-category="preference" aria-pressed="false">preference</button>
+              <button type="button" class="cat-filter-btn" data-category="commitment" aria-pressed="false">commitment</button>
+              <button type="button" class="cat-filter-btn" data-category="decision" aria-pressed="false">decision</button>
+              <button type="button" class="cat-filter-btn" data-category="other" aria-pressed="false">other</button>
+            </div>
+          </div>
+
+          <!-- Memories Error Alert -->
+          <div class="alert-banner alert-error alert-compact" id="memories-error-banner" role="alert" hidden>
+            <div class="alert-content">
+              <strong class="alert-title" id="memories-error-title">Could not load memories</strong>
+              <p class="alert-message" id="memories-error-message"></p>
+            </div>
+            <button type="button" class="btn btn-ghost btn-xs" id="retry-memories-btn">Retry</button>
+          </div>
+
+          <!-- Memories Status Toast (confirmed edit / delete feedback) -->
+          <div class="status-toast" id="memories-status-toast" role="status" aria-live="polite" hidden></div>
+
+          <!-- Memories List Body -->
+          <div class="inspector-body memories-body" id="memories-body">
+            <!-- Loading State -->
+            <div class="panel-loading" id="memories-loading" role="status" hidden>
+              <div class="spinner spinner-sm" aria-hidden="true"></div>
+              <span>Loading active memories from FalkorDB…</span>
+            </div>
+
+            <!-- Empty State: No Stored Memories -->
+            <div class="empty-state empty-state-compact" id="memories-empty-state" hidden>
+              <p class="empty-title" id="memories-empty-title">No saved memories yet</p>
+              <p class="empty-description" id="memories-empty-desc">
+                Active facts extracted from your conversations and stored in FalkorDB for this user will appear here.
+              </p>
+              <button type="button" class="btn btn-secondary btn-xs" id="clear-memory-filters-btn" hidden>Clear active filters</button>
+            </div>
+
+            <!-- Memory Cards List -->
+            <div class="memories-list" id="memories-list" role="list"></div>
+
+            <!-- Pagination Controls -->
+            <div class="pagination-bar" id="memories-pagination" hidden>
+              <span class="pagination-info" id="memories-pagination-info">Showing 0 of 0</span>
+              <div class="pagination-actions">
+                <button type="button" class="btn btn-secondary btn-xs" id="memories-prev-btn" disabled>Previous</button>
+                <button type="button" class="btn btn-secondary btn-xs" id="memories-next-btn" disabled>Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBVIEW 2: Graph Visualization (GET /graph/{user_id}) -->
+        <div class="subview-panel" id="subview-graph" role="tabpanel" aria-labelledby="tab-btn-graph" hidden>
+          <div class="graph-toolbar">
+            <div class="graph-legend" aria-label="Graph edge types">
+              <span class="legend-item"><span class="legend-line legend-has-memory"></span> HAS_MEMORY</span>
+              <span class="legend-item"><span class="legend-line legend-related-to"></span> RELATED_TO</span>
+            </div>
+            <div class="graph-controls">
+              <button type="button" class="btn btn-ghost btn-xs" id="graph-zoom-in-btn" title="Zoom in" aria-label="Zoom in">+</button>
+              <button type="button" class="btn btn-ghost btn-xs" id="graph-zoom-out-btn" title="Zoom out" aria-label="Zoom out">−</button>
+              <button type="button" class="btn btn-ghost btn-xs" id="graph-reset-btn" title="Reset graph view">Reset</button>
+              <button type="button" class="btn btn-ghost btn-xs" id="graph-refresh-btn" title="Reload graph from GET /graph/{user_id}">Reload</button>
+            </div>
+          </div>
+
+          <div class="alert-banner alert-error alert-compact" id="graph-error-banner" role="alert" hidden>
+            <div class="alert-content">
+              <strong class="alert-title">Could not load graph</strong>
+              <p class="alert-message" id="graph-error-message"></p>
+            </div>
+            <button type="button" class="btn btn-ghost btn-xs" id="retry-graph-btn">Retry</button>
+          </div>
+
+          <div class="graph-viewport" id="graph-viewport">
+            <div class="panel-loading" id="graph-loading" role="status" hidden>
+              <div class="spinner spinner-sm" aria-hidden="true"></div>
+              <span>Fetching graph nodes and edges…</span>
+            </div>
+
+            <div class="empty-state empty-state-compact" id="graph-empty-state" hidden>
+              <p class="empty-title">No memory nodes in graph yet</p>
+              <p class="empty-description">
+                Once memories are persisted to FalkorDB, <code>GET /graph/{user_id}</code> will return user and memory nodes along with <code>HAS_MEMORY</code> and <code>RELATED_TO</code> edges.
+              </p>
+            </div>
+
+            <svg class="graph-svg" id="memory-graph-svg" viewBox="0 0 600 380" role="img" aria-label="User memory graph visualization"></svg>
+          </div>
+
+          <!-- Selected Graph Node Inspector -->
+          <div class="graph-node-inspector" id="graph-node-inspector" hidden>
+            <div class="inspector-row">
+              <span class="cat-badge" id="graph-selected-type">skill</span>
+              <code class="mono-id" id="graph-selected-id">mem_...</code>
+              <button type="button" class="icon-btn" id="close-graph-inspector-btn" aria-label="Close node details">×</button>
+            </div>
+            <p class="graph-selected-label" id="graph-selected-label"></p>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </main>
+  </div>
+
+  <!-- Accessible Modal Dialog for Editing a Saved Memory (PATCH /memories/{memory_id}) -->
+  <div class="modal-backdrop" id="edit-memory-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="edit-modal-title">Edit Saved Memory</h2>
+          <p class="modal-subtitle">Updates the existing active record in FalkorDB via <code>PATCH /memories/<span id="edit-modal-memory-id-display"></span></code></p>
+        </div>
+        <button type="button" class="icon-btn" id="close-edit-modal-btn" aria-label="Cancel and close edit dialog">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <form id="edit-memory-form" class="modal-form" novalidate>
+        <input type="hidden" id="edit-memory-id">
+
+        <div class="form-row-split">
+          <div class="form-field">
+            <label for="edit-memory-category" class="field-label">Category</label>
+            <select id="edit-memory-category" class="field-select" required>
+              <option value="goal">goal</option>
+              <option value="skill">skill</option>
+              <option value="project">project</option>
+              <option value="task">task</option>
+              <option value="preference">preference</option>
+              <option value="commitment">commitment</option>
+              <option value="decision">decision</option>
+              <option value="other">other</option>
+            </select>
+          </div>
+
+          <div class="form-field form-field-grow">
+            <label for="edit-memory-subject" class="field-label">Subject <span class="field-limit">(1–200 chars)</span></label>
+            <input type="text" id="edit-memory-subject" class="field-input" maxlength="200" required>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <div class="field-label-row">
+            <label for="edit-memory-content" class="field-label">Memory Content <span class="field-limit">(1–500 chars)</span></label>
+            <span class="char-counter" id="edit-content-counter">0 / 500</span>
+          </div>
+          <textarea id="edit-memory-content" class="field-textarea" rows="3" maxlength="500" required></textarea>
+        </div>
+
+        <div class="alert-banner alert-error alert-compact" id="edit-modal-error" role="alert" hidden>
+          <div class="alert-content">
+            <strong class="alert-title" id="edit-modal-error-title">Update failed</strong>
+            <p class="alert-message" id="edit-modal-error-message"></p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-edit-modal-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-edit-modal-btn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Application Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/memories.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
